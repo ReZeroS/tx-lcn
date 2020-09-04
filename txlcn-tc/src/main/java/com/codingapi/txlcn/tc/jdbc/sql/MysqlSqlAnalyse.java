@@ -1,7 +1,17 @@
 package com.codingapi.txlcn.tc.jdbc.sql;
 
 import com.codingapi.txlcn.p6spy.common.StatementInformation;
+import com.codingapi.txlcn.tc.jdbc.database.DataBaseContext;
+import com.codingapi.txlcn.tc.jdbc.database.TableInfo;
+import com.codingapi.txlcn.tc.jdbc.database.TableList;
+import com.codingapi.txlcn.tc.jdbc.sql.strategy.MysqlAnalyseContextEnum;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import net.sf.jsqlparser.parser.CCJSqlParserUtil;
+import net.sf.jsqlparser.statement.insert.Insert;
+
+import java.sql.Connection;
+import java.sql.SQLException;
 
 /**
  * @author lorne
@@ -16,14 +26,13 @@ public class MysqlSqlAnalyse implements SqlAnalyse {
         return "mysql";
     }
 
+    @SneakyThrows
     @Override
-    public String analyse(String sql,StatementInformation statementInformation) {
-        //todo 数据SQL分析
-        //1. 幂等性分析
-        //1.1. 满足幂等性的直接返回数据.
-        //1.2. 不满足幂等性的，调整为幂等性的操作。
+    public String analyse(String sql,StatementInformation statementInformation)  throws SQLException {
         log.debug("mysql analyse:{}",sql);
-        return sql;
+        Connection connection =  statementInformation.getConnectionInformation().getConnection();
+        //todo sql.toUpperCase().substring(0,6) 这样实现有风险
+        return MysqlAnalyseContextEnum.valueOf(sql.toUpperCase().substring(0,6)).executeStrategry(sql,connection);
     }
 
     @Override
